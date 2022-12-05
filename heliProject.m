@@ -83,7 +83,11 @@ Gyd = G/(1+C*G);
 Gyn = -Gyr;
 Gur = C/(1+C*G);
 
-
+%% Use rlocus(...)
+rlocus(Gyr)
+zeta = 0.5911;
+wn = 1.8;
+sgrid(zeta,wn)
 %% Time Simulation
 
 [Y1,T1] = step(Gyr); 
