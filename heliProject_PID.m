@@ -117,8 +117,8 @@ Gur = C/(1+C*G);
 
 %% Time Simulation: Iteration 0 (given)
 Y1_0 = step(Gyr,T); 
-Y2_0 = lsim(Gyd,5*d,T);
-Y3_0 = lsim(Gyn,n,T);
+Y2_0 = lsim(Gyd,10*d,T);
+Y3_0 = lsim(Gyn,10*n,T);
 u = step(Gur,T);
 
 %% Calculate rise time, settling time, and overshoot
@@ -143,8 +143,8 @@ Gur = C/(1+C*G);
 
 %% Time Simulation: Iteration 1 (increased derivative action)
 Y1_1 = step(Gyr,T); 
-Y2_1 = lsim(Gyd,5*d,T);
-Y3_1 = lsim(Gyn,n,T);
+Y2_1 = lsim(Gyd,10*d,T);
+Y3_1 = lsim(Gyn,10*n,T);
 u = step(Gur,T);
 
 %% Calculate rise time, settling time, and overshoot
@@ -168,8 +168,8 @@ Gur = C/(1+C*G);
 
 %% Time Simulation: Iteration 2 (decreased proportional term)
 Y1_2 = step(Gyr,T); 
-Y2_2 = lsim(Gyd,5*d,T);
-Y3_2 = lsim(Gyn,n,T);
+Y2_2 = lsim(Gyd,10*d,T);
+Y3_2 = lsim(Gyn,10*n,T);
 u = step(Gur,T);
 
 %% Calculate rise time, settling time, and overshoot
@@ -193,8 +193,8 @@ Gur = C/(1+C*G);
 
 %% Time Simulation: Iteration 3 (decreased integral term)
 Y1_3 = step(Gyr,T); 
-Y2_3 = lsim(Gyd,5*d,T);
-Y3_3 = lsim(Gyn,n,T);
+Y2_3 = lsim(Gyd,10*d,T);
+Y3_3 = lsim(Gyn,10*n,T);
 u = step(Gur,T);
 
 %% Calculate rise time, settling time, and overshoot
@@ -220,7 +220,7 @@ Gur = C/(1+C*G);
 %% Time Simulation: Iteration 4 (FINAL CONTROLLER)
 Y1_4 = step(Gyr,T); 
 Y2_4 = lsim(Gyd,10*d,T);
-Y3_4 = lsim(Gyn,n,T);
+Y3_4 = lsim(Gyn,10*n,T);
 u = step(Gur,T);
 
 %% Calculate rise time, settling time, and overshoot
