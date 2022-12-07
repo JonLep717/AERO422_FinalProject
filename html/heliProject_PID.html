@@ -1,0 +1,606 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>heliProject_PID</title><meta name="generator" content="MATLAB 9.13"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2022-12-07"><meta name="DC.source" content="heliProject_PID.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">Project Team Members</a></li><li><a href="#2">Helicopter Model</a></li><li><a href="#3">Create disturbance and noise signals.</a></li><li><a href="#4">Lead/Lag Controller</a></li><li><a href="#5">Time Simulation</a></li><li><a href="#6">PID Controller Design: Iteration 0 (given)</a></li><li><a href="#7">Time Simulation: Iteration 0 (given)</a></li><li><a href="#8">Calculate rise time, settling time, and overshoot</a></li><li><a href="#9">Controller Design: Iteration 1 (increased derivative action)</a></li><li><a href="#10">Time Simulation: Iteration 1 (increased derivative action)</a></li><li><a href="#11">Calculate rise time, settling time, and overshoot</a></li><li><a href="#12">Controller Design: Iteration 2 (decreased proportional term)</a></li><li><a href="#13">Time Simulation: Iteration 2 (decreased proportional term)</a></li><li><a href="#14">Calculate rise time, settling time, and overshoot</a></li><li><a href="#15">Controller Design: Iteration 3 (decreased integral term)</a></li><li><a href="#16">Time Simulation: Iteration 3 (decreased integral term)</a></li><li><a href="#17">Calculate rise time, settling time, and overshoot</a></li><li><a href="#18">Controller Design: Iteration 4 FINAL CONTROLLER (decreased proportional and integral terms)</a></li><li><a href="#19">Time Simulation: Iteration 4 (FINAL CONTROLLER)</a></li><li><a href="#20">Calculate rise time, settling time, and overshoot</a></li><li><a href="#21">Final Plots</a></li></ul></div><h2 id="1">Project Team Members</h2><p>Zac Evermon, Jonathan Lephuoc, Runlin Liu, Sam Schiller, Corbin Tubbs</p><pre class="codeinput">clear; clc;
+close <span class="string">all</span>
+</pre><h2 id="2">Helicopter Model</h2><pre class="codeinput">s = tf(<span class="string">'s'</span>);
+
+Om1 = 0.1; z1 = 0.2; <span class="comment">% Phugoid</span>
+Om2 = 6.5; z2 = 0.7; <span class="comment">% Short period</span>
+Om3 = 50; z3 = 0.01; <span class="comment">% Flex mode</span>
+
+G1 = tf(Om1^2,[1 2*z1*Om1 Om1^2]);
+G2 = tf(Om2^2,[1 2*z2*Om2 Om2^2]);
+G3 = tf(Om3^2,[1 2*z3*Om3 Om3^2]);
+G = 0.5*G1*G2*G3;
+
+figure(<span class="string">"Name"</span>, <span class="string">"Open Loop Frequency Response"</span>)
+bodemag(G); title(<span class="string">'Open Loop Frequency Response'</span>)
+<span class="comment">% print -depsc plantBode.eps</span>
+</pre><img vspace="5" hspace="5" src="heliProject_PID_01.png" alt=""> <h2 id="3">Create disturbance and noise signals.</h2><pre class="codeinput">dt = 0.01; Fs = 1/dt;
+F = 1/(s/5+1);
+T = 0:dt:200;
+
+<span class="comment">% Create disturbance</span>
+D = 2*randn(length(T),1);
+wc = (20/2/pi)/(Fs/2); <span class="comment">% Normalized cutoff frequency (10 rqd/s)</span>
+[fb,fa] = butter(10,wc,<span class="string">'low'</span>); <span class="comment">% butter worth filter.</span>
+d = filter(fb,fa,D); <span class="comment">% Now filter the disturbance. This generates colored noise</span>
+L = length(T)+1;
+
+NFFT = 2^nextpow2(L); <span class="comment">% Next power of 2 from length of y</span>
+Z = 2*fft(d,NFFT)/L;
+f = Fs/2*linspace(0,1,NFFT/2+1); <span class="comment">% Only interested in signals upto Fs/2 Hz.</span>
+absZ = abs(Z(1:NFFT/2+1));
+figure(3);
+subplot(2,2,1);plot(T,d);
+xlabel(<span class="string">'t'</span>); ylabel(<span class="string">'|d(t)|'</span>);
+
+subplot(2,2,2);plot(2*pi*f,absZ); axis([0 100 0 .5]);
+title(<span class="string">'Spectrum of dist(t)'</span>);
+xlabel(<span class="string">'rad/s'</span>);
+ylabel(<span class="string">'|X(f)|'</span>);
+
+<span class="comment">% Create sensor noise</span>
+N = randn(length(T),1);
+wc = (50/2/pi)/(Fs/2); <span class="comment">% Normalized cutoff frequency (10 Hz)</span>
+[fb,fa] = butter(10,wc,<span class="string">'high'</span>); <span class="comment">% butter worth filter.</span>
+n = filter(fb,fa,N); <span class="comment">% Now filter the disturbance. This generates colored noise</span>
+L = length(T)+1;
+
+NFFT = 2^nextpow2(L); <span class="comment">% Next power of 2 from length of y</span>
+Z = fft(n,NFFT)/L;
+f = Fs/2*linspace(0,1,NFFT/2+1); <span class="comment">% Only interested in signals upto Fs/2 Hz.</span>
+absZ = 2*abs(Z(1:NFFT/2+1));
+figure(3);
+subplot(2,2,3);plot(T,n);
+xlabel(<span class="string">'t'</span>);
+ylabel(<span class="string">'n(t)'</span>);
+
+subplot(2,2,4);plot(2*pi*f,absZ); axis([0 100 0 .5]);
+title(<span class="string">'Spectrum of noise(t)'</span>);
+xlabel(<span class="string">'rad/s'</span>);
+ylabel(<span class="string">'|X(f)|'</span>);
+
+<span class="comment">% Save Data</span>
+P = G;
+distTime = d;
+noiseTime = n;
+
+save <span class="string">heli.mat</span> <span class="string">P</span> <span class="string">distTime</span> <span class="string">noiseTime</span> <span class="string">T</span>
+</pre><img vspace="5" hspace="5" src="heliProject_PID_02.png" alt=""> <h2 id="4">Lead/Lag Controller</h2><pre class="codeinput">K = 30; <span class="comment">%With only proportional control the system oscillates. Needs dampening</span>
+
+<span class="comment">%Introduce Lead and Lag compensators</span>
+
+z1 = 0.1;
+p1 = 11;
+z2 = 0.3;
+p2 = 0.25;
+
+Lead = ((s/z1)+1)/((s/p1)+1);  <span class="comment">%where p&gt;&gt;z&gt;0</span>
+
+Lag = ((s+z2)/(s+p2)); <span class="comment">%z&gt;p&gt;0 but z is close to p</span>
+
+<span class="comment">%Having lots of issues with steady state error with just</span>
+<span class="comment">%Lead/Lag</span>
+
+Ki = 5;
+
+C = K*Lead*Lag + Ki/s;
+
+Gyr = C*G/(1+C*G);
+</pre><h2 id="5">Time Simulation</h2><pre class="codeinput">Y1_leadlag = step(Gyr,T);
+
+stepResults_leadlag = stepinfo(Y1_leadlag, T)
+<span class="comment">% Lead/Lag framework satisfies the rise time requirement (0.683 sec), overshoot requirement (9.921%)</span>
+<span class="comment">% but does not satisfy the settling time requirement (8.969 sec &gt; 5 sec).</span>
+figure(<span class="string">"Name"</span>, <span class="string">"Lead Lag Controller"</span>); clf;
+subplot(2,2,1); plot(T,Y1_leadlag,<span class="string">'Linewidth'</span>,1); title(<span class="string">'Gyr: Step Response'</span>); subtitle(<span class="string">'Lead/Lag Framework'</span>); xlabel(<span class="string">'Time (s)'</span>); grid <span class="string">on</span>;
+subplot(2,2,3); bodemag(Gyr); title(<span class="string">'Gyr: Frequency Response'</span>); grid <span class="string">on</span>;
+</pre><pre class="codeoutput">
+stepResults_leadlag = 
+
+  struct with fields:
+
+         RiseTime: 0.6830
+    TransientTime: 8.9690
+     SettlingTime: 8.9690
+      SettlingMin: 0.9024
+      SettlingMax: 1.0992
+        Overshoot: 9.9208
+       Undershoot: 0
+             Peak: 1.0992
+         PeakTime: 1.6700
+
+</pre><img vspace="5" hspace="5" src="heliProject_PID_03.png" alt=""> <h2 id="6">PID Controller Design: Iteration 0 (given)</h2><p>For the purposes of experimenting with the PID framework and to achieve the settling time requirement:</p><pre class="codeinput">K = 100;
+Ki = 30;
+Kd = 200;
+
+C = K + Ki/s + Kd*s/(s/10+1); <span class="comment">% PID</span>
+
+Gyr = C*G/(1+C*G);
+Gyd = G/(1+C*G);
+Gyn = -Gyr;
+Gur = C/(1+C*G);
+</pre><h2 id="7">Time Simulation: Iteration 0 (given)</h2><pre class="codeinput">Y1_0 = step(Gyr,T);
+Y2_0 = lsim(Gyd,10*d,T);
+Y3_0 = lsim(Gyn,10*n,T);
+u = step(Gur,T);
+</pre><h2 id="8">Calculate rise time, settling time, and overshoot</h2><pre class="codeinput">stepResults_0 = stepinfo(Y1_0,T);
+tSettle_0 = stepResults_0.SettlingTime;
+tRise_0 = stepResults_0.RiseTime;
+maxOvershoot_0 = stepResults_0.Overshoot;
+</pre><h2 id="9">Controller Design: Iteration 1 (increased derivative action)</h2><p>Overshoot was high, increasing derivative action will increase damping and decrease overshoot</p><pre class="codeinput">K = 100;
+Ki = 30;
+Kd = 300;
+
+C = K + Ki/s + Kd*s/(s/10+1); <span class="comment">% PID</span>
+
+Gyr = C*G/(1+C*G);
+Gyd = G/(1+C*G);
+Gyn = -Gyr;
+Gur = C/(1+C*G);
+</pre><h2 id="10">Time Simulation: Iteration 1 (increased derivative action)</h2><pre class="codeinput">Y1_1 = step(Gyr,T);
+Y2_1 = lsim(Gyd,10*d,T);
+Y3_1 = lsim(Gyn,10*n,T);
+u = step(Gur,T);
+</pre><h2 id="11">Calculate rise time, settling time, and overshoot</h2><pre class="codeinput">stepResults_1 = stepinfo(Y1_1,T);
+tSettle_1 = stepResults_1.SettlingTime;
+tRise_1 = stepResults_1.RiseTime;
+maxOvershoot_1 = stepResults_1.Overshoot;
+</pre><h2 id="12">Controller Design: Iteration 2 (decreased proportional term)</h2><p>Overshoot is still too high. Decreasing proportional term by factor of 0.5.</p><pre class="codeinput">K = 50;
+Ki = 30;
+Kd = 300;
+
+C = K + Ki/s + Kd*s/(s/10+1); <span class="comment">% PID</span>
+
+Gyr = C*G/(1+C*G);
+Gyd = G/(1+C*G);
+Gyn = -Gyr;
+Gur = C/(1+C*G);
+</pre><h2 id="13">Time Simulation: Iteration 2 (decreased proportional term)</h2><pre class="codeinput">Y1_2 = step(Gyr,T);
+Y2_2 = lsim(Gyd,10*d,T);
+Y3_2 = lsim(Gyn,10*n,T);
+u = step(Gur,T);
+</pre><h2 id="14">Calculate rise time, settling time, and overshoot</h2><pre class="codeinput">stepResults_2 = stepinfo(Y1_2,T);
+tSettle_2 = stepResults_2.SettlingTime;
+tRise_2 = stepResults_2.RiseTime;
+maxOvershoot_2 = stepResults_2.Overshoot;
+</pre><h2 id="15">Controller Design: Iteration 3 (decreased integral term)</h2><p>Overshoot is still too high. Decreasing integral term from 30 to 10.</p><pre class="codeinput">K = 50;
+Ki = 10;
+Kd = 300;
+
+C = K + Ki/s + Kd*s/(s/10+1); <span class="comment">% PID</span>
+
+Gyr = C*G/(1+C*G);
+Gyd = G/(1+C*G);
+Gyn = -Gyr;
+Gur = C/(1+C*G);
+</pre><h2 id="16">Time Simulation: Iteration 3 (decreased integral term)</h2><pre class="codeinput">Y1_3 = step(Gyr,T);
+Y2_3 = lsim(Gyd,10*d,T);
+Y3_3 = lsim(Gyn,10*n,T);
+u = step(Gur,T);
+</pre><h2 id="17">Calculate rise time, settling time, and overshoot</h2><pre class="codeinput">stepResults_3 = stepinfo(Y1_3,T);
+tSettle_3 = stepResults_3.SettlingTime;
+tRise_3 = stepResults_3.RiseTime;
+maxOvershoot_3 = stepResults_3.Overshoot;
+</pre><h2 id="18">Controller Design: Iteration 4 FINAL CONTROLLER (decreased proportional and integral terms)</h2><p>Overshoot is still too high. Decreasing proportional and integral terms and performing additional tailoring until design criteria are met.</p><pre class="codeinput">K = 20;
+Ki = 3.65;
+Kd = 307;
+
+C = K + Ki/s + Kd*s/(s/10+1); <span class="comment">% PID</span>
+
+Gyr = C*G/(1+C*G);
+Gyd = G/(1+C*G);
+Gyn = -Gyr;
+Gur = C/(1+C*G);
+</pre><h2 id="19">Time Simulation: Iteration 4 (FINAL CONTROLLER)</h2><pre class="codeinput">Y1_4 = step(Gyr,T);
+Y2_4 = lsim(Gyd,10*d,T);
+Y3_4 = lsim(Gyn,10*n,T);
+u = step(Gur,T);
+</pre><h2 id="20">Calculate rise time, settling time, and overshoot</h2><pre class="codeinput">stepResults_4 = stepinfo(Y1_4,T)
+tSettle_4 = stepResults_4.SettlingTime;
+tRise_4 = stepResults_4.RiseTime;
+maxOvershoot_4 = stepResults_4.Overshoot;
+
+f = figure(<span class="string">"Name"</span>, <span class="string">"Final PID Controller"</span>); clf;
+f.WindowState = <span class="string">"Maximized"</span>;
+subplot(2,2,1); plot(T,Y1_4,<span class="string">'Linewidth'</span>,1); title(<span class="string">'Gyr: Step Response'</span>); subtitle(<span class="string">'Iteration 4: K = 20, Ki = 3.65, Kd = 307'</span>); xlabel(<span class="string">'Time (s)'</span>); grid <span class="string">on</span>;
+hold <span class="string">on</span>; plot(T,Y1_4+Y2_4,<span class="string">'r'</span>,<span class="string">'Linewidth'</span>,1); plot(T,Y1_4+Y2_4+Y3_4,<span class="string">'g'</span>,<span class="string">'Linewidth'</span>,1); xlim([0,50]); legend(<span class="string">'Without Gust and Noise'</span>,<span class="string">'With Gust'</span>, <span class="string">'With Gust and Noise'</span>); hold <span class="string">off</span>;
+subplot(2,2,2); bodemag(Gyd); title(<span class="string">'Gud: Frequency Response'</span>); grid <span class="string">on</span>;
+subplot(2,2,3); bodemag(Gyr); title(<span class="string">'Gyr: Frequency Response'</span>); grid <span class="string">on</span>;
+subplot(2,2,4); bodemag(Gur); title(<span class="string">'Gur: Frequency Response'</span>); grid <span class="string">on</span>;
+hold <span class="string">off</span>;
+<span class="comment">% By inspection of the Gyr Step Response graph using a PID framework,</span>
+<span class="comment">% maximum overshoot is 6.5084%, which is less than the 10% design criteria.</span>
+<span class="comment">% Rise time is 0.6915 seconds, which is less than the 1 second design criteria</span>
+<span class="comment">% and settling time is 2.36 seconds (within 2% of steady state value),</span>
+<span class="comment">% which is less than the 5 second design criteria.</span>
+
+<span class="comment">% There are no significant oscillations. However, while the settling time</span>
+<span class="comment">% is less than 5 seconds, the time it takes for the system to maintain the</span>
+<span class="comment">% steady state value without any low-frequency/low amplitude oscillations</span>
+<span class="comment">% is roughly ~40 seconds. During this time, the error never exceeds 1.5%,</span>
+<span class="comment">% so oscillations can be treated as negligible. This was most likely a</span>
+<span class="comment">% result of the system requiring very low K and Ki values in conjunction</span>
+<span class="comment">% with large Kd values in order to maintain a low overshoot at the cost of</span>
+<span class="comment">% higher steady state error.</span>
+</pre><pre class="codeoutput">
+stepResults_4 = 
+
+  struct with fields:
+
+         RiseTime: 0.6915
+    TransientTime: 2.3599
+     SettlingTime: 2.3599
+      SettlingMin: 0.9010
+      SettlingMax: 1.0651
+        Overshoot: 6.5084
+       Undershoot: 0
+             Peak: 1.0651
+         PeakTime: 1.5700
+
+</pre><img vspace="5" hspace="5" src="heliProject_PID_04.png" alt=""> <h2 id="21">Final Plots</h2><pre class="codeinput">f = figure(<span class="string">"Name"</span>, <span class="string">"Final Controller Plots"</span>); clf;
+f.WindowState = <span class="string">'maximized'</span>;
+subplot(2,3,1); plot(T, Y1_leadlag,<span class="string">'Linewidth'</span>,1); title(<span class="string">'Gyr: Step Response'</span>); subtitle(<span class="string">"Lead Lag Framework"</span>); xlabel(<span class="string">'Time(s)'</span>); grid <span class="string">on</span>;
+
+subplot(2,3,2); plot(T, Y1_0,<span class="string">'Linewidth'</span>,1); title(<span class="string">'Gyr: Step Response'</span>); subtitle(<span class="string">"Iteration 0: K = 100, Ki = 30, Kd = 200"</span>); xlabel(<span class="string">'Time(s)'</span>); grid <span class="string">on</span>;
+hold <span class="string">on</span>; plot(T,Y1_0+Y2_0,<span class="string">'r'</span>,<span class="string">'Linewidth'</span>,1); plot(T,Y1_0+Y2_0+Y3_0,<span class="string">'g'</span>,<span class="string">'Linewidth'</span>,1); xlim([0,50]); legend(<span class="string">'Without Gust and Noise'</span>,<span class="string">'With Gust'</span>, <span class="string">'With Gust and Noise'</span>); hold <span class="string">off</span>;
+
+subplot(2,3,3); plot(T, Y1_1,<span class="string">'Linewidth'</span>,1); title(<span class="string">'Gyr: Step Response'</span>); subtitle(<span class="string">"Iteration 1: K = 100, Ki = 30, Kd = 300"</span>); xlabel(<span class="string">'Time(s)'</span>); grid <span class="string">on</span>;
+hold <span class="string">on</span>; plot(T,Y1_1+Y2_1,<span class="string">'r'</span>,<span class="string">'Linewidth'</span>,1); plot(T,Y1_1+Y2_1+Y3_1,<span class="string">'g'</span>,<span class="string">'Linewidth'</span>,1); xlim([0,50]); legend(<span class="string">'Without Gust and Noise'</span>,<span class="string">'With Gust'</span>, <span class="string">'With Gust and Noise'</span>); hold <span class="string">off</span>;
+
+subplot(2,3,4); plot(T, Y1_2,<span class="string">'Linewidth'</span>,1); title(<span class="string">'Gyr: Step Response'</span>); subtitle(<span class="string">"Iteration 2: K = 50, Ki = 30, Kd = 300"</span>); xlabel(<span class="string">'Time(s)'</span>); grid <span class="string">on</span>;
+hold <span class="string">on</span>; plot(T,Y1_2+Y2_2,<span class="string">'r'</span>,<span class="string">'Linewidth'</span>,1); plot(T,Y1_2+Y2_2+Y3_2,<span class="string">'g'</span>,<span class="string">'Linewidth'</span>,1); xlim([0,50]); legend(<span class="string">'Without Gust and Noise'</span>,<span class="string">'With Gust'</span>, <span class="string">'With Gust and Noise'</span>); hold <span class="string">off</span>;
+
+subplot(2,3,5); plot(T, Y1_3,<span class="string">'Linewidth'</span>,1); title(<span class="string">'Gyr: Step Response'</span>); subtitle(<span class="string">"Iteration 3: K = 50, Ki = 10, Kd = 300"</span>); xlabel(<span class="string">'Time(s)'</span>); grid <span class="string">on</span>;
+hold <span class="string">on</span>; plot(T,Y1_3+Y2_3,<span class="string">'r'</span>,<span class="string">'Linewidth'</span>,1); plot(T,Y1_3+Y2_3+Y3_3,<span class="string">'g'</span>,<span class="string">'Linewidth'</span>,1); xlim([0,50]); legend(<span class="string">'Without Gust and Noise'</span>,<span class="string">'With Gust'</span>, <span class="string">'With Gust and Noise'</span>); hold <span class="string">off</span>;
+
+subplot(2,3,6); plot(T, Y1_4,<span class="string">'Linewidth'</span>,1); title(<span class="string">'FINAL CONTROLLER: Gyr: Step Response'</span>); subtitle(<span class="string">"Iteration 4: K = 20, Ki = 3.65, Kd = 307"</span>); xlabel(<span class="string">'Time(s)'</span>); grid <span class="string">on</span>;
+hold <span class="string">on</span>; plot(T,Y1_4+Y2_4,<span class="string">'r'</span>,<span class="string">'Linewidth'</span>,1); plot(T,Y1_4+Y2_4+Y3_4,<span class="string">'g'</span>,<span class="string">'Linewidth'</span>,1); xlim([0,50]); legend(<span class="string">'Without Gust and Noise'</span>,<span class="string">'With Gust'</span>, <span class="string">'With Gust and Noise'</span>);
+</pre><img vspace="5" hspace="5" src="heliProject_PID_05.png" alt=""> <p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2022b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Project Team Members
+% Zac Evermon, Jonathan Lephuoc, Runlin Liu, Sam Schiller, Corbin Tubbs
+
+clear; clc; 
+close all
+%% Helicopter Model
+s = tf('s');
+
+Om1 = 0.1; z1 = 0.2; % Phugoid
+Om2 = 6.5; z2 = 0.7; % Short period
+Om3 = 50; z3 = 0.01; % Flex mode
+
+G1 = tf(Om1^2,[1 2*z1*Om1 Om1^2]);
+G2 = tf(Om2^2,[1 2*z2*Om2 Om2^2]);
+G3 = tf(Om3^2,[1 2*z3*Om3 Om3^2]);
+G = 0.5*G1*G2*G3;
+
+figure("Name", "Open Loop Frequency Response")
+bodemag(G); title('Open Loop Frequency Response')
+% print -depsc plantBode.eps
+
+%% Create disturbance and noise signals.
+dt = 0.01; Fs = 1/dt;
+F = 1/(s/5+1);
+T = 0:dt:200;
+
+% Create disturbance
+D = 2*randn(length(T),1);
+wc = (20/2/pi)/(Fs/2); % Normalized cutoff frequency (10 rqd/s)
+[fb,fa] = butter(10,wc,'low'); % butter worth filter.
+d = filter(fb,fa,D); % Now filter the disturbance. This generates colored noise
+L = length(T)+1;
+
+NFFT = 2^nextpow2(L); % Next power of 2 from length of y
+Z = 2*fft(d,NFFT)/L;
+f = Fs/2*linspace(0,1,NFFT/2+1); % Only interested in signals upto Fs/2 Hz.
+absZ = abs(Z(1:NFFT/2+1));
+figure(3);
+subplot(2,2,1);plot(T,d); 
+xlabel('t'); ylabel('|d(t)|');
+
+subplot(2,2,2);plot(2*pi*f,absZ); axis([0 100 0 .5]);
+title('Spectrum of dist(t)');
+xlabel('rad/s');
+ylabel('|X(f)|');
+
+% Create sensor noise
+N = randn(length(T),1);
+wc = (50/2/pi)/(Fs/2); % Normalized cutoff frequency (10 Hz)
+[fb,fa] = butter(10,wc,'high'); % butter worth filter.
+n = filter(fb,fa,N); % Now filter the disturbance. This generates colored noise
+L = length(T)+1;
+
+NFFT = 2^nextpow2(L); % Next power of 2 from length of y
+Z = fft(n,NFFT)/L;
+f = Fs/2*linspace(0,1,NFFT/2+1); % Only interested in signals upto Fs/2 Hz.
+absZ = 2*abs(Z(1:NFFT/2+1));
+figure(3);
+subplot(2,2,3);plot(T,n);
+xlabel('t');
+ylabel('n(t)');
+
+subplot(2,2,4);plot(2*pi*f,absZ); axis([0 100 0 .5]);
+title('Spectrum of noise(t)');
+xlabel('rad/s');
+ylabel('|X(f)|');
+
+% Save Data
+P = G;
+distTime = d;
+noiseTime = n;
+
+save heli.mat P distTime noiseTime T
+%% Lead/Lag Controller
+
+K = 30; %With only proportional control the system oscillates. Needs dampening
+
+%Introduce Lead and Lag compensators
+
+z1 = 0.1;
+p1 = 11;
+z2 = 0.3;
+p2 = 0.25;
+
+Lead = ((s/z1)+1)/((s/p1)+1);  %where p>>z>0
+
+Lag = ((s+z2)/(s+p2)); %z>p>0 but z is close to p
+
+%Having lots of issues with steady state error with just
+%Lead/Lag
+
+Ki = 5;
+
+C = K*Lead*Lag + Ki/s;
+
+Gyr = C*G/(1+C*G);
+
+%% Time Simulation
+
+Y1_leadlag = step(Gyr,T);
+
+stepResults_leadlag = stepinfo(Y1_leadlag, T)
+% Lead/Lag framework satisfies the rise time requirement (0.683 sec), overshoot requirement (9.921%)
+% but does not satisfy the settling time requirement (8.969 sec > 5 sec).
+figure("Name", "Lead Lag Controller"); clf;
+subplot(2,2,1); plot(T,Y1_leadlag,'Linewidth',1); title('Gyr: Step Response'); subtitle('Lead/Lag Framework'); xlabel('Time (s)'); grid on;
+subplot(2,2,3); bodemag(Gyr); title('Gyr: Frequency Response'); grid on;
+%% PID Controller Design: Iteration 0 (given)
+% For the purposes of experimenting with the PID framework and to achieve the settling time requirement:
+K = 100;
+Ki = 30;
+Kd = 200;
+
+C = K + Ki/s + Kd*s/(s/10+1); % PID
+
+Gyr = C*G/(1+C*G);
+Gyd = G/(1+C*G);
+Gyn = -Gyr;
+Gur = C/(1+C*G);
+
+%% Time Simulation: Iteration 0 (given)
+Y1_0 = step(Gyr,T); 
+Y2_0 = lsim(Gyd,10*d,T);
+Y3_0 = lsim(Gyn,10*n,T);
+u = step(Gur,T);
+
+%% Calculate rise time, settling time, and overshoot
+stepResults_0 = stepinfo(Y1_0,T);
+tSettle_0 = stepResults_0.SettlingTime;
+tRise_0 = stepResults_0.RiseTime;
+maxOvershoot_0 = stepResults_0.Overshoot;
+
+%% Controller Design: Iteration 1 (increased derivative action)
+% Overshoot was high, increasing derivative action will increase damping
+% and decrease overshoot
+K = 100;
+Ki = 30;
+Kd = 300;
+
+C = K + Ki/s + Kd*s/(s/10+1); % PID
+
+Gyr = C*G/(1+C*G);
+Gyd = G/(1+C*G);
+Gyn = -Gyr;
+Gur = C/(1+C*G);
+
+%% Time Simulation: Iteration 1 (increased derivative action)
+Y1_1 = step(Gyr,T); 
+Y2_1 = lsim(Gyd,10*d,T);
+Y3_1 = lsim(Gyn,10*n,T);
+u = step(Gur,T);
+
+%% Calculate rise time, settling time, and overshoot
+stepResults_1 = stepinfo(Y1_1,T);
+tSettle_1 = stepResults_1.SettlingTime;
+tRise_1 = stepResults_1.RiseTime;
+maxOvershoot_1 = stepResults_1.Overshoot;
+
+%% Controller Design: Iteration 2 (decreased proportional term)
+% Overshoot is still too high. Decreasing proportional term by factor of 0.5.
+K = 50;
+Ki = 30;
+Kd = 300;
+
+C = K + Ki/s + Kd*s/(s/10+1); % PID
+
+Gyr = C*G/(1+C*G);
+Gyd = G/(1+C*G);
+Gyn = -Gyr;
+Gur = C/(1+C*G);
+
+%% Time Simulation: Iteration 2 (decreased proportional term)
+Y1_2 = step(Gyr,T); 
+Y2_2 = lsim(Gyd,10*d,T);
+Y3_2 = lsim(Gyn,10*n,T);
+u = step(Gur,T);
+
+%% Calculate rise time, settling time, and overshoot
+stepResults_2 = stepinfo(Y1_2,T);
+tSettle_2 = stepResults_2.SettlingTime;
+tRise_2 = stepResults_2.RiseTime;
+maxOvershoot_2 = stepResults_2.Overshoot;
+
+%% Controller Design: Iteration 3 (decreased integral term)
+% Overshoot is still too high. Decreasing integral term from 30 to 10.
+K = 50;
+Ki = 10;
+Kd = 300;
+
+C = K + Ki/s + Kd*s/(s/10+1); % PID
+
+Gyr = C*G/(1+C*G);
+Gyd = G/(1+C*G);
+Gyn = -Gyr;
+Gur = C/(1+C*G);
+
+%% Time Simulation: Iteration 3 (decreased integral term)
+Y1_3 = step(Gyr,T); 
+Y2_3 = lsim(Gyd,10*d,T);
+Y3_3 = lsim(Gyn,10*n,T);
+u = step(Gur,T);
+
+%% Calculate rise time, settling time, and overshoot
+stepResults_3 = stepinfo(Y1_3,T);
+tSettle_3 = stepResults_3.SettlingTime;
+tRise_3 = stepResults_3.RiseTime;
+maxOvershoot_3 = stepResults_3.Overshoot;
+
+%% Controller Design: Iteration 4 FINAL CONTROLLER (decreased proportional and integral terms)
+% Overshoot is still too high. Decreasing proportional and integral terms
+% and performing additional tailoring until design criteria are met.
+K = 20;
+Ki = 3.65;
+Kd = 307;
+
+C = K + Ki/s + Kd*s/(s/10+1); % PID
+
+Gyr = C*G/(1+C*G);
+Gyd = G/(1+C*G);
+Gyn = -Gyr;
+Gur = C/(1+C*G);
+
+%% Time Simulation: Iteration 4 (FINAL CONTROLLER)
+Y1_4 = step(Gyr,T); 
+Y2_4 = lsim(Gyd,10*d,T);
+Y3_4 = lsim(Gyn,10*n,T);
+u = step(Gur,T);
+
+%% Calculate rise time, settling time, and overshoot
+stepResults_4 = stepinfo(Y1_4,T)
+tSettle_4 = stepResults_4.SettlingTime;
+tRise_4 = stepResults_4.RiseTime;
+maxOvershoot_4 = stepResults_4.Overshoot;
+
+f = figure("Name", "Final PID Controller"); clf;
+f.WindowState = "Maximized";
+subplot(2,2,1); plot(T,Y1_4,'Linewidth',1); title('Gyr: Step Response'); subtitle('Iteration 4: K = 20, Ki = 3.65, Kd = 307'); xlabel('Time (s)'); grid on;
+hold on; plot(T,Y1_4+Y2_4,'r','Linewidth',1); plot(T,Y1_4+Y2_4+Y3_4,'g','Linewidth',1); xlim([0,50]); legend('Without Gust and Noise','With Gust', 'With Gust and Noise'); hold off;
+subplot(2,2,2); bodemag(Gyd); title('Gud: Frequency Response'); grid on;
+subplot(2,2,3); bodemag(Gyr); title('Gyr: Frequency Response'); grid on;
+subplot(2,2,4); bodemag(Gur); title('Gur: Frequency Response'); grid on;
+hold off;
+% By inspection of the Gyr Step Response graph using a PID framework,
+% maximum overshoot is 6.5084%, which is less than the 10% design criteria.
+% Rise time is 0.6915 seconds, which is less than the 1 second design criteria
+% and settling time is 2.36 seconds (within 2% of steady state value),
+% which is less than the 5 second design criteria.
+
+% There are no significant oscillations. However, while the settling time
+% is less than 5 seconds, the time it takes for the system to maintain the
+% steady state value without any low-frequency/low amplitude oscillations
+% is roughly ~40 seconds. During this time, the error never exceeds 1.5%,
+% so oscillations can be treated as negligible. This was most likely a
+% result of the system requiring very low K and Ki values in conjunction
+% with large Kd values in order to maintain a low overshoot at the cost of
+% higher steady state error.
+%% Final Plots
+f = figure("Name", "Final Controller Plots"); clf;
+f.WindowState = 'maximized';
+subplot(2,3,1); plot(T, Y1_leadlag,'Linewidth',1); title('Gyr: Step Response'); subtitle("Lead Lag Framework"); xlabel('Time(s)'); grid on;
+
+subplot(2,3,2); plot(T, Y1_0,'Linewidth',1); title('Gyr: Step Response'); subtitle("Iteration 0: K = 100, Ki = 30, Kd = 200"); xlabel('Time(s)'); grid on;
+hold on; plot(T,Y1_0+Y2_0,'r','Linewidth',1); plot(T,Y1_0+Y2_0+Y3_0,'g','Linewidth',1); xlim([0,50]); legend('Without Gust and Noise','With Gust', 'With Gust and Noise'); hold off;
+
+subplot(2,3,3); plot(T, Y1_1,'Linewidth',1); title('Gyr: Step Response'); subtitle("Iteration 1: K = 100, Ki = 30, Kd = 300"); xlabel('Time(s)'); grid on;
+hold on; plot(T,Y1_1+Y2_1,'r','Linewidth',1); plot(T,Y1_1+Y2_1+Y3_1,'g','Linewidth',1); xlim([0,50]); legend('Without Gust and Noise','With Gust', 'With Gust and Noise'); hold off;
+
+subplot(2,3,4); plot(T, Y1_2,'Linewidth',1); title('Gyr: Step Response'); subtitle("Iteration 2: K = 50, Ki = 30, Kd = 300"); xlabel('Time(s)'); grid on;
+hold on; plot(T,Y1_2+Y2_2,'r','Linewidth',1); plot(T,Y1_2+Y2_2+Y3_2,'g','Linewidth',1); xlim([0,50]); legend('Without Gust and Noise','With Gust', 'With Gust and Noise'); hold off;
+
+subplot(2,3,5); plot(T, Y1_3,'Linewidth',1); title('Gyr: Step Response'); subtitle("Iteration 3: K = 50, Ki = 10, Kd = 300"); xlabel('Time(s)'); grid on;
+hold on; plot(T,Y1_3+Y2_3,'r','Linewidth',1); plot(T,Y1_3+Y2_3+Y3_3,'g','Linewidth',1); xlim([0,50]); legend('Without Gust and Noise','With Gust', 'With Gust and Noise'); hold off;
+
+subplot(2,3,6); plot(T, Y1_4,'Linewidth',1); title('FINAL CONTROLLER: Gyr: Step Response'); subtitle("Iteration 4: K = 20, Ki = 3.65, Kd = 307"); xlabel('Time(s)'); grid on;
+hold on; plot(T,Y1_4+Y2_4,'r','Linewidth',1); plot(T,Y1_4+Y2_4+Y3_4,'g','Linewidth',1); xlim([0,50]); legend('Without Gust and Noise','With Gust', 'With Gust and Noise');
+
+##### SOURCE END #####
+--></body></html>
